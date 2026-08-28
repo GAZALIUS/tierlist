@@ -150,65 +150,65 @@ const TAG_COLORS = {
 };
 
 function G(name, tag, appid) { return { name, tag, appid: appid || null, grad: TAG_COLORS[tag] || TAG_COLORS["СВОЁ"] }; }
-const CATALOG_RAW = [
-  ["Counter-Strike 2","SHOOTER"], ["Call of Duty: Modern Warfare III","SHOOTER"], ["Valorant","SHOOTER"],
-  ["Overwatch 2","SHOOTER"], ["Apex Legends","BATTLE ROYALE"], ["PUBG: Battlegrounds","BATTLE ROYALE"],
-  ["Fortnite","BATTLE ROYALE"], ["Battlefield 2042","SHOOTER"], ["DOOM Eternal","FPS"], ["DOOM (2016)","FPS"],
-  ["Halo Infinite","FPS"], ["Rainbow Six Siege","SHOOTER"], ["Left 4 Dead 2","CO-OP"], ["PAYDAY 2","SHOOTER"],
-  ["Insurgency: Sandstorm","SHOOTER"], ["Ready or Not","SHOOTER"], ["Escape from Tarkov","SHOOTER"],
-  ["Half-Life 2","FPS"], ["Half-Life: Alyx","FPS"], ["Portal 2","PUZZLE"], ["BioShock Infinite","FPS"],
-  ["Titanfall 2","FPS"], ["Metro Exodus","FPS"], ["Metro 2033 Redux","FPS"],
+const const CATALOG_RAW = [
+  ["Counter-Strike 2","SHOOTER",730], ["Call of Duty: Modern Warfare III","SHOOTER",null], ["Valorant","SHOOTER",null],
+  ["Overwatch 2","SHOOTER",null], ["Apex Legends","BATTLE ROYALE",1172470], ["PUBG: Battlegrounds","BATTLE ROYALE",578080],
+  ["Fortnite","BATTLE ROYALE",null], ["Battlefield 2042","SHOOTER",1517290], ["DOOM Eternal","FPS",782330], ["DOOM (2016)","FPS",379720],
+  ["Halo Infinite","FPS",1240440], ["Rainbow Six Siege","SHOOTER",359550], ["Left 4 Dead 2","CO-OP",550], ["PAYDAY 2","SHOOTER",218620],
+  ["Insurgency: Sandstorm","SHOOTER",581320], ["Ready or Not","SHOOTER",1144200], ["Escape from Tarkov","SHOOTER",null],
+  ["Half-Life 2","FPS",220], ["Half-Life: Alyx","FPS",546560], ["Portal 2","PUZZLE",620], ["BioShock Infinite","FPS",8870],
+  ["Titanfall 2","FPS",1237970], ["Metro Exodus","FPS",412020], ["Metro 2033 Redux","FPS",286690],
 
-  ["Grand Theft Auto V","OPEN WORLD"], ["Grand Theft Auto IV","OPEN WORLD"], ["Red Dead Redemption 2","OPEN WORLD"],
-  ["The Witcher 3: Wild Hunt","OPEN WORLD"], ["Cyberpunk 2077","OPEN WORLD"], ["Elden Ring","RPG"],
-  ["Assassin's Creed Valhalla","OPEN WORLD"], ["Assassin's Creed Odyssey","OPEN WORLD"], ["Far Cry 6","OPEN WORLD"],
-  ["Far Cry 3","OPEN WORLD"], ["Watch Dogs 2","OPEN WORLD"], ["Horizon Zero Dawn","OPEN WORLD"],
-  ["Dying Light","OPEN WORLD"], ["Dying Light 2","OPEN WORLD"], ["Mafia II","OPEN WORLD"], ["Mafia: Definitive Edition","OPEN WORLD"],
-  ["Just Cause 4","OPEN WORLD"], ["Saints Row IV","OPEN WORLD"], ["Death Stranding","OPEN WORLD"],
-  ["Kingdom Come: Deliverance","RPG"], ["Kingdom Come: Deliverance II","RPG"],
+  ["Grand Theft Auto V","OPEN WORLD",271590], ["Grand Theft Auto IV","OPEN WORLD",12210], ["Red Dead Redemption 2","OPEN WORLD",1174180],
+  ["The Witcher 3: Wild Hunt","OPEN WORLD",292030], ["Cyberpunk 2077","OPEN WORLD",1091500], ["Elden Ring","RPG",1245620],
+  ["Assassin's Creed Valhalla","OPEN WORLD",2208920], ["Assassin's Creed Odyssey","OPEN WORLD",812140], ["Far Cry 6","OPEN WORLD",2369390],
+  ["Far Cry 3","OPEN WORLD",220240], ["Watch Dogs 2","OPEN WORLD",447040], ["Horizon Zero Dawn","OPEN WORLD",1151640],
+  ["Dying Light","OPEN WORLD",239140], ["Dying Light 2","OPEN WORLD",534380], ["Mafia II","OPEN WORLD",50130], ["Mafia: Definitive Edition","OPEN WORLD",1030840],
+  ["Just Cause 4","OPEN WORLD",517630], ["Saints Row IV","OPEN WORLD",206420], ["Death Stranding","OPEN WORLD",1850570],
+  ["Kingdom Come: Deliverance","RPG",379430], ["Kingdom Come: Deliverance II","RPG",1771300],
 
-  ["Baldur's Gate 3","RPG"], ["Fallout 4","RPG"], ["Fallout: New Vegas","RPG"], ["The Elder Scrolls V: Skyrim","RPG"],
-  ["Mass Effect Legendary Edition","RPG"], ["Divinity: Original Sin 2","RPG"], ["Dragon Age: Inquisition","RPG"],
-  ["Persona 5 Royal","RPG"], ["Final Fantasy VII Remake","RPG"], ["Diablo IV","RPG"], ["Path of Exile","RPG"],
-  ["Grim Dawn","RPG"], ["Disco Elysium","RPG"], ["Starfield","RPG"],
+  ["Baldur's Gate 3","RPG",1086940], ["Fallout 4","RPG",377160], ["Fallout: New Vegas","RPG",22380], ["The Elder Scrolls V: Skyrim","RPG",72850],
+  ["Mass Effect Legendary Edition","RPG",1328670], ["Divinity: Original Sin 2","RPG",435150], ["Dragon Age: Inquisition","RPG",1222690],
+  ["Persona 5 Royal","RPG",1687950], ["Final Fantasy VII Remake","RPG",1462040], ["Diablo IV","RPG",null], ["Path of Exile","RPG",238960],
+  ["Grim Dawn","RPG",219990], ["Disco Elysium","RPG",632470], ["Starfield","RPG",1716740],
 
-  ["Minecraft","SANDBOX"], ["Terraria","SANDBOX"], ["Garry's Mod","SANDBOX"], ["Rust","SURVIVAL"],
-  ["ARK: Survival Ascended","SURVIVAL"], ["Valheim","SURVIVAL"], ["The Forest","SURVIVAL"], ["Sons Of The Forest","SURVIVAL"],
-  ["DayZ","SURVIVAL"], ["Subnautica","SURVIVAL"], ["7 Days to Die","SURVIVAL"], ["Green Hell","SURVIVAL"],
-  ["Next Day: Survival","SURVIVAL"], ["Astroneer","ADVENTURE"], ["No Man's Sky","ADVENTURE"],
+  ["Minecraft","SANDBOX",null], ["Terraria","SANDBOX",105600], ["Garry's Mod","SANDBOX",4000], ["Rust","SURVIVAL",252490],
+  ["ARK: Survival Ascended","SURVIVAL",2399830], ["Valheim","SURVIVAL",892970], ["The Forest","SURVIVAL",242760], ["Sons Of The Forest","SURVIVAL",1326470],
+  ["DayZ","SURVIVAL",221100], ["Subnautica","SURVIVAL",264710], ["7 Days to Die","SURVIVAL",251570], ["Green Hell","SURVIVAL",815370],
+  ["Next Day: Survival","SURVIVAL",677620], ["Astroneer","ADVENTURE",361420], ["No Man's Sky","ADVENTURE",275850],
 
-  ["Forza Horizon 5","RACING"], ["Forza Horizon 4","RACING"], ["Need for Speed Heat","RACING"],
-  ["Gran Turismo 7","RACING"], ["F1 24","RACING"], ["Wreckfest","RACING"], ["BeamNG.drive","SIM"],
-  ["Euro Truck Simulator 2","SIM"], ["American Truck Simulator","SIM"], ["SnowRunner","SIM"], ["MudRunner","SIM"],
-  ["My Summer Car","SIM"], ["Assetto Corsa","RACING"], ["Rocket League","SPORTS"],
+  ["Forza Horizon 5","RACING",1551360], ["Forza Horizon 4","RACING",1293830], ["Need for Speed Heat","RACING",1222680],
+  ["Gran Turismo 7","RACING",null], ["F1 24","RACING",2488620], ["Wreckfest","RACING",228380], ["BeamNG.drive","SIM",284160],
+  ["Euro Truck Simulator 2","SIM",227300], ["American Truck Simulator","SIM",270880], ["SnowRunner","SIM",1465360], ["MudRunner","SIM",623990],
+  ["My Summer Car","SIM",516750], ["Assetto Corsa","RACING",244210], ["Rocket League","SPORTS",252950],
 
-  ["Sid Meier's Civilization VI","STRATEGY"], ["Age of Empires IV","STRATEGY"], ["Total War: Warhammer III","STRATEGY"],
-  ["StarCraft II","STRATEGY"], ["Hearts of Iron IV","STRATEGY"], ["Stellaris","STRATEGY"], ["XCOM 2","STRATEGY"],
-  ["Kingdom Two Crowns","STRATEGY"], ["War Thunder","STRATEGY"], ["World of Tanks","STRATEGY"],
+  ["Sid Meier's Civilization VI","STRATEGY",289070], ["Age of Empires IV","STRATEGY",1466860], ["Total War: Warhammer III","STRATEGY",1142710],
+  ["StarCraft II","STRATEGY",null], ["Hearts of Iron IV","STRATEGY",394360], ["Stellaris","STRATEGY",281990], ["XCOM 2","STRATEGY",268500],
+  ["Kingdom Two Crowns","STRATEGY",794840], ["War Thunder","STRATEGY",236390], ["World of Tanks","STRATEGY",null],
 
-  ["The Sims 4","SIM"], ["Cities: Skylines","SIM"], ["Cities: Skylines II","SIM"], ["Stardew Valley","SIM"],
-  ["Farming Simulator 22","SIM"], ["Planet Coaster","SIM"], ["Two Point Hospital","SIM"], ["Potion Craft","SIM"],
-  ["House Flipper","SIM"], ["PowerWash Simulator","SIM"],
+  ["The Sims 4","SIM",null], ["Cities: Skylines","SIM",255710], ["Cities: Skylines II","SIM",949230], ["Stardew Valley","SIM",413150],
+  ["Farming Simulator 22","SIM",1248130], ["Planet Coaster","SIM",493340], ["Two Point Hospital","SIM",535930], ["Potion Craft","SIM",1210320],
+  ["House Flipper","SIM",613100], ["PowerWash Simulator","SIM",1290000],
 
-  ["Resident Evil Village","HORROR"], ["Resident Evil 4","HORROR"], ["Dead by Daylight","HORROR"],
-  ["Phasmophobia","HORROR"], ["Outlast","HORROR"], ["Silent Hill 2","HORROR"], ["Amnesia: The Dark Descent","HORROR"],
-  ["Alien: Isolation","HORROR"],
+  ["Resident Evil Village","HORROR",1196590], ["Resident Evil 4","HORROR",2050650], ["Dead by Daylight","HORROR",381210],
+  ["Phasmophobia","HORROR",739630], ["Outlast","HORROR",238320], ["Silent Hill 2","HORROR",2124490], ["Amnesia: The Dark Descent","HORROR",57300],
+  ["Alien: Isolation","HORROR",214490],
 
-  ["Hollow Knight","PLATFORMER"], ["Celeste","PLATFORMER"], ["Hades","PLATFORMER"], ["Hades II","PLATFORMER"],
-  ["Ori and the Blind Forest","PLATFORMER"], ["Cuphead","PLATFORMER"], ["Dead Cells","PLATFORMER"],
-  ["Slay the Spire","PUZZLE"], ["Balatro","PUZZLE"], ["Portal","PUZZLE"], ["Inside","PLATFORMER"], ["Limbo","PLATFORMER"],
+  ["Hollow Knight","PLATFORMER",367520], ["Celeste","PLATFORMER",504230], ["Hades","PLATFORMER",1145360], ["Hades II","PLATFORMER",1145350],
+  ["Ori and the Blind Forest","PLATFORMER",387290], ["Cuphead","PLATFORMER",268910], ["Dead Cells","PLATFORMER",588650],
+  ["Slay the Spire","PUZZLE",646570], ["Balatro","PUZZLE",2379780], ["Portal","PUZZLE",400], ["Inside","PLATFORMER",304430], ["Limbo","PLATFORMER",48000],
 
-  ["EA Sports FC 24","SPORTS"], ["NBA 2K24","SPORTS"], ["Tony Hawk's Pro Skater 1+2","SPORTS"],
+  ["EA Sports FC 24","SPORTS",2195250], ["NBA 2K24","SPORTS",2338770], ["Tony Hawk's Pro Skater 1+2","SPORTS",1088850],
 
-  ["League of Legends","MOBA"], ["Dota 2","MOBA"],
+  ["League of Legends","MOBA",null], ["Dota 2","MOBA",570],
 
-  ["It Takes Two","CO-OP"], ["Deep Rock Galactic","CO-OP"], ["Alien Swarm: Reactive Drop","CO-OP"],
-  ["Human: Fall Flat","CO-OP"], ["Overcooked! 2","CO-OP"],
+  ["It Takes Two","CO-OP",1426210], ["Deep Rock Galactic","CO-OP",548430], ["Alien Swarm: Reactive Drop","CO-OP",563560],
+  ["Human: Fall Flat","CO-OP",477160], ["Overcooked! 2","CO-OP",728880],
 
-  ["Dishonored 2","FPS"], ["Prey","FPS"], ["Bioshock","FPS"], ["Wolfenstein: The New Order","FPS"],
-  ["Mortal Kombat 1","FIGHTING"], ["Street Fighter 6","FIGHTING"], ["Tekken 8","FIGHTING"],
+  ["Dishonored 2","FPS",403640], ["Prey","FPS",480490], ["Bioshock","FPS",409710], ["Wolfenstein: The New Order","FPS",201810],
+  ["Mortal Kombat 1","FIGHTING",1971870], ["Street Fighter 6","FIGHTING",1364780], ["Tekken 8","FIGHTING",1778820],
 
-  ["Postal 2","SHOOTER"], ["Intravenous","SHOOTER"], ["Fistful of Frags","SHOOTER"], ["PikuNiku","ADVENTURE"],
+  ["Postal 2","SHOOTER",38090], ["Intravenous","SHOOTER",1592510], ["Fistful of Frags","SHOOTER",265630], ["PikuNiku","ADVENTURE",720730],
 ];
 
 const CATALOG = CATALOG_RAW.map(([n,t]) => G(n,t)).sort((a,b)=>a.name.localeCompare(b.name,"ru"));
