@@ -229,24 +229,23 @@ function countOf(name) {
   return Object.values(zones).reduce((acc, arr) => acc + (arr.includes(name)?1:0), 0);
 }
 
-const WIKI_CACHE = {};
+const RAWG_API_KEY = "2e2df5238d7f4dc3b76c227d3dad3024";
+const RAWG_CACHE = {};
 
-async function fetchWikiImage(name) {
-  if (WIKI_CACHE.hasOwnProperty(name)) return WIKI_CACHE[name];
+async function fetchRawgImage(name) {
+  if (RAWG_CACHE.hasOwnProperty(name)) return RAWG_CACHE[name];
   try {
-    const url = `https://en.wikipedia.org/w/api.php?origin=*&action=query&generator=search&gsrsearch=${encodeURIComponent(name + " video game")}&gsrlimit=1&prop=pageimages&piprop=original&format=json`;
+    const url = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(name)}&page_size=1`;
     const res = await fetch(url);
     const data = await res.json();
-    const pages = data.query && data.query.pages;
     let img = null;
-    if (pages) {
-      const first = Object.values(pages)[0];
-      if (first && first.original && first.original.source) img = first.original.source;
+    if (data.results && data.results.length > 0 && data.results[0].background_image) {
+      img = data.results[0].background_image;
     }
-    WIKI_CACHE[name] = img;
+    RAWG_CACHE[name] = img;
     return img;
   } catch (e) {
-    WIKI_CACHE[name] = null;
+    RAWG_CACHE[name] = null;
     return null;
   }
 }
@@ -267,14 +266,14 @@ function coverEl(game) {
     img.src = src;
   }
 
-  function tryWiki() {
-    fetchWikiImage(game.name).then((src) => { if (src) setImage(src); });
+    function tryRawg() {
+    fetchRawgImage(game.name).then((src) => { if (src) setImage(src); });
   }
 
   if (game.appid) {
-    setImage(`https://cdn.akamai.steamstatic.com/steam/apps/${game.appid}/library_600x900.jpg`, tryWiki);
+    setImage(`https://cdn.akamai.steamstatic.com/steam/apps/${game.appid}/library_600x900.jpg`, tryRawg);
   } else {
-    tryWiki();
+    tryRawg();
   }
 
   return div;
