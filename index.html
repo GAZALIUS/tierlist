@@ -149,8 +149,7 @@ const TAG_COLORS = {
   "СВОЁ":        ["#5a5850", "#1a1a18"],
 };
 
-function G(name, tag) { return { name, tag, grad: TAG_COLORS[tag] || TAG_COLORS["СВОЁ"] }; }
-
+function G(name, tag, appid) { return { name, tag, appid: appid || null, grad: TAG_COLORS[tag] || TAG_COLORS["СВОЁ"] }; }
 const CATALOG_RAW = [
   ["Counter-Strike 2","SHOOTER"], ["Call of Duty: Modern Warfare III","SHOOTER"], ["Valorant","SHOOTER"],
   ["Overwatch 2","SHOOTER"], ["Apex Legends","BATTLE ROYALE"], ["PUBG: Battlegrounds","BATTLE ROYALE"],
