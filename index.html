@@ -229,26 +229,54 @@ function countOf(name) {
   return Object.values(zones).reduce((acc, arr) => acc + (arr.includes(name)?1:0), 0);
 }
 
+const WIKI_CACHE = {};
+
+async function fetchWikiImage(name) {
+  if (WIKI_CACHE.hasOwnProperty(name)) return WIKI_CACHE[name];
+  try {
+    const url = `https://en.wikipedia.org/w/api.php?origin=*&action=query&generator=search&gsrsearch=${encodeURIComponent(name + " video game")}&gsrlimit=1&prop=pageimages&piprop=original&format=json`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const pages = data.query && data.query.pages;
+    let img = null;
+    if (pages) {
+      const first = Object.values(pages)[0];
+      if (first && first.original && first.original.source) img = first.original.source;
+    }
+    WIKI_CACHE[name] = img;
+    return img;
+  } catch (e) {
+    WIKI_CACHE[name] = null;
+    return null;
+  }
+}
+
 function coverEl(game) {
   const div = document.createElement("div");
   div.className = "cover";
-  if (game.appid) {
-    div.style.background = "#20212a";
-    const img = document.createElement("img");
-    img.src = `https://cdn.akamai.steamstatic.com/steam/apps/${game.appid}/library_600x900.jpg`;
+  div.style.background = `linear-gradient(160deg, ${game.grad[0]}, ${game.grad[1]})`;
+  div.innerHTML = `<span class="tag">${game.tag}</span><span class="name">${game.name}</span>`;
+
+  function setImage(src, onFail) {
+    const img = new Image();
     img.alt = game.name;
     img.loading = "lazy";
     img.style.cssText = "width:100%;height:100%;object-fit:cover;display:block;border-radius:5px;";
-    img.onerror = () => {
-      img.remove();
-      div.style.background = `linear-gradient(160deg, ${game.grad[0]}, ${game.grad[1]})`;
-      div.innerHTML = `<span class="tag">${game.tag}</span><span class="name">${game.name}</span>`;
-    };
-    div.appendChild(img);
-  } else {
-    div.style.background = `linear-gradient(160deg, ${game.grad[0]}, ${game.grad[1]})`;
-    div.innerHTML = `<span class="tag">${game.tag}</span><span class="name">${game.name}</span>`;
+    img.onload = () => { div.style.background = "#20212a"; div.innerHTML = ""; div.appendChild(img); };
+    img.onerror = () => { if (onFail) onFail(); };
+    img.src = src;
   }
+
+  function tryWiki() {
+    fetchWikiImage(game.name).then((src) => { if (src) setImage(src); });
+  }
+
+  if (game.appid) {
+    setImage(`https://cdn.akamai.steamstatic.com/steam/apps/${game.appid}/library_600x900.jpg`, tryWiki);
+  } else {
+    tryWiki();
+  }
+
   return div;
 }
 
