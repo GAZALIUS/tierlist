@@ -361,8 +361,14 @@ function renderPool() {
 function renderAll() { renderSeasons(); renderPool(); }
 
 document.getElementById("continueBtn").addEventListener("click", () => {
-  document.getElementById("welcome").style.display = "none";
-  document.getElementById("app").style.display = "block";
+  const welcome = document.getElementById("welcome");
+  const app = document.getElementById("app");
+  welcome.classList.add("slide-up");
+  setTimeout(() => {
+    welcome.style.display = "none";
+    app.style.display = "block";
+    requestAnimationFrame(() => app.classList.add("visible"));
+  }, 600);
 });
 
 document.getElementById("resetBtn").addEventListener("click", () => {
