@@ -368,14 +368,13 @@ function renderAll() { renderSeasons(); renderPool(); }
 document.getElementById("continueBtn").addEventListener("click", () => {
   const welcome = document.getElementById("welcome");
   const app = document.getElementById("app");
-  welcome.classList.add("slide-up");
-  setTimeout(() => {
-    welcome.style.display = "none";
-    app.style.display = "block";
-    requestAnimationFrame(() => app.classList.add("visible"));
-  }, 600);
+  app.style.display = "block";
+  requestAnimationFrame(() => {
+    app.classList.add("visible");
+    welcome.classList.add("slide-up");
+  });
+  setTimeout(() => { welcome.style.display = "none"; }, 650);
 });
-
 document.getElementById("resetBtn").addEventListener("click", () => {
   customGames = [];
   zones = emptyZones();
