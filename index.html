@@ -211,7 +211,7 @@ const  CATALOG_RAW = [
   ["Postal 2","SHOOTER",38090], ["Intravenous","SHOOTER",1592510], ["Fistful of Frags","SHOOTER",265630], ["PikuNiku","ADVENTURE",720730],
 ];
 
-const CATALOG = CATALOG_RAW.map(([n,t]) => G(n,t)).sort((a,b)=>a.name.localeCompare(b.name,"ru"));
+const CATALOG = CATALOG_RAW.map(([n,t,a]) => G(n,t,a)).sort((a,b)=>a.name.localeCompare(b.name,"ru"));
 
 let customGames = [];
 let zones = {};
