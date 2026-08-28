@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тир-лист по сезонам</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Oswald:wght@600&display=swap');
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0a0a0d; color: #e7e4dc; font-family: 'IBM Plex Mono', monospace; }
+  h1, h2 { font-family: 'Oswald', sans-serif; font-weight: 600; margin: 0; }
+
+  #welcome {
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center; padding: 24px;
+  }
+  #welcome h1 { font-size: 30px; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 14px; }
+  #welcome p { color: #9a978d; font-size: 14px; max-width: 440px; line-height: 1.5; margin-bottom: 30px; }
+  #welcome button {
+    background: #c0392b; border: none; border-radius: 6px; padding: 14px 34px;
+    color: #fff; font-weight: 600; font-size: 15px; cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.02em;
+  }
+  #welcome button:hover { background: #a8321f; }
+
+  #app { display: none; padding: 22px 14px 60px; max-width: 1040px; margin: 0 auto; }
+  .top-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+  .top-row button { background: none; border: 1px solid #4a4a52; color: #9a978d; border-radius: 4px; padding: 5px 10px; font-size: 11px; cursor: pointer; font-family: 'IBM Plex Mono', monospace; }
+  .hint { color: #7c7a70; font-size: 11.5px; margin: 0 0 18px; }
+
+  .season { border-radius: 10px; padding: 12px 12px 10px; margin-bottom: 12px; border: 1px solid; }
+  .season-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+  .season-head .label { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 16px; text-transform: uppercase; }
+  .season-head .sub { font-size: 11px; color: #7c7a70; }
+
+  .lane { background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 7px; padding: 8px 8px 6px; margin-bottom: 8px; }
+  .lane.dragover { background: rgba(255,255,255,0.06); border-color: #9a978d; }
+  .lane-label { font-size: 9.5px; color: #8a8780; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .lane-cards { display: flex; gap: 8px; overflow-x: auto; min-height: 120px; padding-bottom: 2px; }
+  .lane-empty { color: #4a4a52; font-size: 10.5px; font-style: italic; align-self: center; white-space: nowrap; }
+
+  .pool-box { background: #15161c; border: 1px solid #34363f; border-radius: 10px; padding: 12px; }
+  .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .search-row input {
+    flex: 1; background: #101116; border: 1px solid #34363f; border-radius: 4px;
+    padding: 8px 10px; color: #e7e4dc; font-size: 13px; font-family: 'IBM Plex Mono', monospace; outline: none;
+  }
+  .search-row button {
+    background: #c0392b; border: none; border-radius: 4px; padding: 8px 16px;
+    color: #101116; font-weight: 600; font-size: 13px; cursor: pointer; font-family: 'IBM Plex Mono', monospace;
+  }
+  .pool-label { font-size: 10.5px; color: #7c7a70; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+  .pool-cards { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  .card { width: 88px; flex-shrink: 0; }
+  .card .cover {
+    width: 88px; height: 123px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.12);
+    display: flex; flex-direction: column; justify-content: space-between; padding: 6px;
+    cursor: grab; position: relative;
+  }
+  .card .cover .tag { font-size: 7px; letter-spacing: 0.06em; color: rgba(255,255,255,0.75); }
+  .card .cover .name { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 10.5px; line-height: 1.1; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+  .card .title { font-size: 9.5px; color: #c9c6ba; margin-top: 3px; line-height: 1.2; }
+  .card .remove-btn {
+    position: absolute; top: 3px; left: 3px; background: rgba(0,0,0,0.6); color: #fff; border: none;
+    border-radius: 50%; width: 16px; height: 16px; font-size: 10px; line-height: 16px; cursor: pointer; padding: 0;
+  }
+  .card.dragging { opacity: 0.35; }
+
+  ::-webkit-scrollbar { height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #2a2b33; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div id="welcome">
+  <h1>Тир-лист игр по сезонам</h1>
+  <p>Раскидай библиотеку по временам года: что заходит по вайбу, что наоборот, и что хорошо в любое время. В конце — делись результатом с друзьями.</p>
+  <button id="continueBtn">Продолжить</button>
+</div>
+
+<div id="app">
+  <div class="top-row">
+    <h1 style="font-size:19px; text-transform:uppercase;">Игры по сезонам и вайбу</h1>
+    <button id="resetBtn">начать заново</button>
+  </div>
+  <p class="hint">Перетаскивай карточки в подходящую категорию — одну игру можно поместить сразу в несколько мест. Ничего не сохраняется между заходами: обновишь страницу — начнёшь с чистого листа.</p>
+
+  <div id="seasonsContainer"></div>
+
+  <div class="pool-box">
+    <div class="search-row">
+      <input id="searchInput" placeholder="поиск или своя игра...">
+      <button id="addBtn">+ добавить</button>
+    </div>
+    <div class="pool-label" id="poolLabel"></div>
+    <div class="pool-cards" id="poolCards"></div>
+  </div>
+</div>
+
+<script>
+const SEASONS = [
+  { id: "winter", label: "Зима", sub: "снег, мороз", color: "#4a7fa8", bg: "#0d1620" },
+  { id: "spring", label: "Весна", sub: "оттепель, слякоть", color: "#6a9955", bg: "#131a12" },
+  { id: "summer", label: "Лето", sub: "жара, дорога", color: "#d99a3a", bg: "#1c1408" },
+  { id: "autumn", label: "Осень", sub: "дождь, холод", color: "#a8562e", bg: "#1a1109" },
+];
+const EVERGREEN = { id: "evergreen", label: "Вне сезона", sub: "заходит всегда", color: "#8a8478", bg: "#15151a" };
+const LANES = [ { id: "vibe", label: "По вайбу" }, { id: "novibe", label: "Не вайб" } ];
+
+const TAG_COLORS = {
+  "SHOOTER":     ["#c9422e", "#1a0604"],
+  "OPEN WORLD":  ["#d99a3a", "#241a08"],
+  "RPG":         ["#a88a4a", "#3a2c14"],
+  "SURVIVAL":    ["#5a6a4a", "#181e10"],
+  "RACING":      ["#3ca8d9", "#0e2a3a"],
+  "STRATEGY":    ["#3c8ac9", "#0e1e2a"],
+  "SIM":         ["#3a6fa8", "#1c2b3a"],
+  "HORROR":      ["#6a2e6a", "#1a0a1a"],
+  "PLATFORMER":  ["#e0a83c", "#7a3ca8"],
+  "SPORTS":      ["#6ac97a", "#14241a"],
+  "MOBA":        ["#8a3ac9", "#1e0e3a"],
+  "BATTLE ROYALE": ["#c9a83c", "#2a2410"],
+  "CO-OP":       ["#3ca87a", "#0e2a1e"],
+  "PUZZLE":      ["#4ac9a8", "#0e2420"],
+  "SANDBOX":     ["#5aa843", "#2c4a1e"],
+  "FPS":         ["#e07a1c", "#2a1404"],
+  "ADVENTURE":   ["#a83c8a", "#240a1e"],
+  "FIGHTING":    ["#7a2e2e", "#1a0808"],
+  "СВОЁ":        ["#5a5850", "#1a1a18"],
+};
+
+function G(name, tag) { return { name, tag, grad: TAG_COLORS[tag] || TAG_COLORS["СВОЁ"] }; }
+
+const CATALOG_RAW = [
+  ["Counter-Strike 2","SHOOTER"], ["Call of Duty: Modern Warfare III","SHOOTER"], ["Valorant","SHOOTER"],
+  ["Overwatch 2","SHOOTER"], ["Apex Legends","BATTLE ROYALE"], ["PUBG: Battlegrounds","BATTLE ROYALE"],
+  ["Fortnite","BATTLE ROYALE"], ["Battlefield 2042","SHOOTER"], ["DOOM Eternal","FPS"], ["DOOM (2016)","FPS"],
+  ["Halo Infinite","FPS"], ["Rainbow Six Siege","SHOOTER"], ["Left 4 Dead 2","CO-OP"], ["PAYDAY 2","SHOOTER"],
+  ["Insurgency: Sandstorm","SHOOTER"], ["Ready or Not","SHOOTER"], ["Escape from Tarkov","SHOOTER"],
+  ["Half-Life 2","FPS"], ["Half-Life: Alyx","FPS"], ["Portal 2","PUZZLE"], ["BioShock Infinite","FPS"],
+  ["Titanfall 2","FPS"], ["Metro Exodus","FPS"], ["Metro 2033 Redux","FPS"],
+
+  ["Grand Theft Auto V","OPEN WORLD"], ["Grand Theft Auto IV","OPEN WORLD"], ["Red Dead Redemption 2","OPEN WORLD"],
+  ["The Witcher 3: Wild Hunt","OPEN WORLD"], ["Cyberpunk 2077","OPEN WORLD"], ["Elden Ring","RPG"],
+  ["Assassin's Creed Valhalla","OPEN WORLD"], ["Assassin's Creed Odyssey","OPEN WORLD"], ["Far Cry 6","OPEN WORLD"],
+  ["Far Cry 3","OPEN WORLD"], ["Watch Dogs 2","OPEN WORLD"], ["Horizon Zero Dawn","OPEN WORLD"],
+  ["Dying Light","OPEN WORLD"], ["Dying Light 2","OPEN WORLD"], ["Mafia II","OPEN WORLD"], ["Mafia: Definitive Edition","OPEN WORLD"],
+  ["Just Cause 4","OPEN WORLD"], ["Saints Row IV","OPEN WORLD"], ["Death Stranding","OPEN WORLD"],
+  ["Kingdom Come: Deliverance","RPG"], ["Kingdom Come: Deliverance II","RPG"],
+
+  ["Baldur's Gate 3","RPG"], ["Fallout 4","RPG"], ["Fallout: New Vegas","RPG"], ["The Elder Scrolls V: Skyrim","RPG"],
+  ["Mass Effect Legendary Edition","RPG"], ["Divinity: Original Sin 2","RPG"], ["Dragon Age: Inquisition","RPG"],
+  ["Persona 5 Royal","RPG"], ["Final Fantasy VII Remake","RPG"], ["Diablo IV","RPG"], ["Path of Exile","RPG"],
+  ["Grim Dawn","RPG"], ["Disco Elysium","RPG"], ["Starfield","RPG"],
+
+  ["Minecraft","SANDBOX"], ["Terraria","SANDBOX"], ["Garry's Mod","SANDBOX"], ["Rust","SURVIVAL"],
+  ["ARK: Survival Ascended","SURVIVAL"], ["Valheim","SURVIVAL"], ["The Forest","SURVIVAL"], ["Sons Of The Forest","SURVIVAL"],
+  ["DayZ","SURVIVAL"], ["Subnautica","SURVIVAL"], ["7 Days to Die","SURVIVAL"], ["Green Hell","SURVIVAL"],
+  ["Next Day: Survival","SURVIVAL"], ["Astroneer","ADVENTURE"], ["No Man's Sky","ADVENTURE"],
+
+  ["Forza Horizon 5","RACING"], ["Forza Horizon 4","RACING"], ["Need for Speed Heat","RACING"],
+  ["Gran Turismo 7","RACING"], ["F1 24","RACING"], ["Wreckfest","RACING"], ["BeamNG.drive","SIM"],
+  ["Euro Truck Simulator 2","SIM"], ["American Truck Simulator","SIM"], ["SnowRunner","SIM"], ["MudRunner","SIM"],
+  ["My Summer Car","SIM"], ["Assetto Corsa","RACING"], ["Rocket League","SPORTS"],
+
+  ["Sid Meier's Civilization VI","STRATEGY"], ["Age of Empires IV","STRATEGY"], ["Total War: Warhammer III","STRATEGY"],
+  ["StarCraft II","STRATEGY"], ["Hearts of Iron IV","STRATEGY"], ["Stellaris","STRATEGY"], ["XCOM 2","STRATEGY"],
+  ["Kingdom Two Crowns","STRATEGY"], ["War Thunder","STRATEGY"], ["World of Tanks","STRATEGY"],
+
+  ["The Sims 4","SIM"], ["Cities: Skylines","SIM"], ["Cities: Skylines II","SIM"], ["Stardew Valley","SIM"],
+  ["Farming Simulator 22","SIM"], ["Planet Coaster","SIM"], ["Two Point Hospital","SIM"], ["Potion Craft","SIM"],
+  ["House Flipper","SIM"], ["PowerWash Simulator","SIM"],
+
+  ["Resident Evil Village","HORROR"], ["Resident Evil 4","HORROR"], ["Dead by Daylight","HORROR"],
+  ["Phasmophobia","HORROR"], ["Outlast","HORROR"], ["Silent Hill 2","HORROR"], ["Amnesia: The Dark Descent","HORROR"],
+  ["Alien: Isolation","HORROR"],
+
+  ["Hollow Knight","PLATFORMER"], ["Celeste","PLATFORMER"], ["Hades","PLATFORMER"], ["Hades II","PLATFORMER"],
+  ["Ori and the Blind Forest","PLATFORMER"], ["Cuphead","PLATFORMER"], ["Dead Cells","PLATFORMER"],
+  ["Slay the Spire","PUZZLE"], ["Balatro","PUZZLE"], ["Portal","PUZZLE"], ["Inside","PLATFORMER"], ["Limbo","PLATFORMER"],
+
+  ["EA Sports FC 24","SPORTS"], ["NBA 2K24","SPORTS"], ["Tony Hawk's Pro Skater 1+2","SPORTS"],
+
+  ["League of Legends","MOBA"], ["Dota 2","MOBA"],
+
+  ["It Takes Two","CO-OP"], ["Deep Rock Galactic","CO-OP"], ["Alien Swarm: Reactive Drop","CO-OP"],
+  ["Human: Fall Flat","CO-OP"], ["Overcooked! 2","CO-OP"],
+
+  ["Dishonored 2","FPS"], ["Prey","FPS"], ["Bioshock","FPS"], ["Wolfenstein: The New Order","FPS"],
+  ["Mortal Kombat 1","FIGHTING"], ["Street Fighter 6","FIGHTING"], ["Tekken 8","FIGHTING"],
+
+  ["Postal 2","SHOOTER"], ["Intravenous","SHOOTER"], ["Fistful of Frags","SHOOTER"], ["PikuNiku","ADVENTURE"],
+];
+
+const CATALOG = CATALOG_RAW.map(([n,t]) => G(n,t)).sort((a,b)=>a.name.localeCompare(b.name,"ru"));
+
+let customGames = [];
+let zones = {};
+let dragItem = null;
+
+function allGames() { return CATALOG.concat(customGames); }
+function findGame(name) { return allGames().find(g => g.name === name); }
+function emptyZones() {
+  const z = {};
+  SEASONS.forEach(s => { z[s.id+":vibe"]=[]; z[s.id+":novibe"]=[]; });
+  z[EVERGREEN.id] = [];
+  return z;
+}
+function countOf(name) {
+  return Object.values(zones).reduce((acc, arr) => acc + (arr.includes(name)?1:0), 0);
+}
+
+function coverEl(game) {
+  const div = document.createElement("div");
+  div.className = "cover";
+  div.style.background = `linear-gradient(160deg, ${game.grad[0]}, ${game.grad[1]})`;
+  div.innerHTML = `<span class="tag">${game.tag}</span><span class="name">${game.name}</span>`;
+  return div;
+}
+
+function cardEl(game, opts) {
+  opts = opts || {};
+  const wrap = document.createElement("div");
+  wrap.className = "card";
+  const cover = coverEl(game);
+  cover.draggable = true;
+  cover.style.position = "relative";
+  cover.addEventListener("dragstart", (e) => {
+    dragItem = game.name;
+    wrap.classList.add("dragging");
+    e.dataTransfer.effectAllowed = "copy";
+  });
+  cover.addEventListener("dragend", () => wrap.classList.remove("dragging"));
+
+  if (opts.count > 0) {
+    const badge = document.createElement("span");
+    badge.textContent = opts.count;
+    badge.style.cssText = "position:absolute;top:3px;right:3px;background:#c0392b;color:#fff;font-size:9px;border-radius:8px;padding:1px 5px;";
+    cover.appendChild(badge);
+  }
+  if (opts.showRemove) {
+    const btn = document.createElement("button");
+    btn.className = "remove-btn";
+    btn.textContent = "×";
+    btn.addEventListener("click", (e) => { e.stopPropagation(); opts.onRemove(); });
+    cover.appendChild(btn);
+  }
+
+  const title = document.createElement("div");
+  title.className = "title";
+  title.textContent = game.name;
+
+  wrap.appendChild(cover);
+  wrap.appendChild(title);
+  return wrap;
+}
+
+function laneEl(zoneKey, label) {
+  const lane = document.createElement("div");
+  lane.className = "lane";
+  const labelEl = document.createElement("div");
+  labelEl.className = "lane-label";
+  labelEl.textContent = label;
+  const cardsEl = document.createElement("div");
+  cardsEl.className = "lane-cards";
+  lane.appendChild(labelEl);
+  lane.appendChild(cardsEl);
+
+  lane.addEventListener("dragover", (e) => { e.preventDefault(); lane.classList.add("dragover"); });
+  lane.addEventListener("dragleave", () => lane.classList.remove("dragover"));
+  lane.addEventListener("drop", () => {
+    lane.classList.remove("dragover");
+    if (!dragItem) return;
+    if (!zones[zoneKey].includes(dragItem)) zones[zoneKey].push(dragItem);
+    dragItem = null;
+    renderAll();
+  });
+
+  renderLaneCards(cardsEl, zoneKey);
+  return lane;
+}
+
+function renderLaneCards(cardsEl, zoneKey) {
+  cardsEl.innerHTML = "";
+  const names = zones[zoneKey];
+  if (names.length === 0) {
+    const empty = document.createElement("span");
+    empty.className = "lane-empty";
+    empty.textContent = "перетащи сюда";
+    cardsEl.appendChild(empty);
+    return;
+  }
+  names.forEach(name => {
+    const g = findGame(name);
+    if (!g) return;
+    const card = cardEl(g, {
+      showRemove: true,
+      onRemove: () => { zones[zoneKey] = zones[zoneKey].filter(n => n !== name); renderAll(); }
+    });
+    cardsEl.appendChild(card);
+  });
+}
+
+function renderSeasons() {
+  const container = document.getElementById("seasonsContainer");
+  container.innerHTML = "";
+  SEASONS.forEach(s => {
+    const box = document.createElement("div");
+    box.className = "season";
+    box.style.background = s.bg;
+    box.style.borderColor = s.color + "33";
+    const head = document.createElement("div");
+    head.className = "season-head";
+    head.innerHTML = `<span class="label" style="color:${s.color}">${s.label}</span><span class="sub">${s.sub}</span>`;
+    box.appendChild(head);
+    LANES.forEach(lane => box.appendChild(laneEl(`${s.id}:${lane.id}`, lane.label)));
+    container.appendChild(box);
+  });
+
+  const evBox = document.createElement("div");
+  evBox.className = "season";
+  evBox.style.background = EVERGREEN.bg;
+  evBox.style.borderColor = EVERGREEN.color + "33";
+  evBox.innerHTML = `<div class="season-head"><span class="label" style="color:${EVERGREEN.color}">${EVERGREEN.label}</span><span class="sub">${EVERGREEN.sub}</span></div>`;
+  evBox.appendChild(laneEl(EVERGREEN.id, "Всегда хороша"));
+  container.appendChild(evBox);
+}
+
+function renderPool() {
+  const query = document.getElementById("searchInput").value.trim().toLowerCase();
+  const games = allGames();
+  const filtered = query ? games.filter(g => g.name.toLowerCase().includes(query)) : games;
+  document.getElementById("poolLabel").textContent = query ? `Найдено: ${filtered.length}` : `Все игры (${games.length}), по алфавиту`;
+  const poolEl = document.getElementById("poolCards");
+  poolEl.innerHTML = "";
+  if (filtered.length === 0) {
+    const span = document.createElement("span");
+    span.style.cssText = "color:#5a5850;font-size:12px;";
+    span.textContent = "ничего не найдено — нажми «+ добавить», чтобы вписать игру от руки";
+    poolEl.appendChild(span);
+    return;
+  }
+  filtered.forEach(g => poolEl.appendChild(cardEl(g, { count: countOf(g.name) })));
+}
+
+function renderAll() { renderSeasons(); renderPool(); }
+
+document.getElementById("continueBtn").addEventListener("click", () => {
+  document.getElementById("welcome").style.display = "none";
+  document.getElementById("app").style.display = "block";
+});
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  customGames = [];
+  zones = emptyZones();
+  document.getElementById("searchInput").value = "";
+  renderAll();
+});
+
+document.getElementById("addBtn").addEventListener("click", addCustom);
+document.getElementById("searchInput").addEventListener("keydown", (e) => { if (e.key === "Enter") addCustom(); });
+document.getElementById("searchInput").addEventListener("input", renderPool);
+
+function addCustom() {
+  const input = document.getElementById("searchInput");
+  const name = input.value.trim();
+  if (!name) return;
+  if (allGames().some(g => g.name.toLowerCase() === name.toLowerCase())) { input.value = ""; renderPool(); return; }
+  customGames.push(G(name, "СВОЁ"));
+  input.value = "";
+  renderAll();
+}
+
+zones = emptyZones();
+renderAll();
+</script>
+
+</body>
+</html>
