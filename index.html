@@ -32,7 +32,12 @@
   }
   #welcome button:hover { background: #a8321f; }
 
-  #app { display: none; padding: 22px 14px 60px; max-width: 1040px; margin: 0 auto; }
+  #app {
+    display: none; padding: 22px 14px 60px; max-width: 1040px; margin: 0 auto;
+    background: linear-gradient(160deg, #1a1109 0%, #0d1620 55%, #15151a 100%);
+    opacity: 0; transition: opacity 0.5s ease;
+  }
+  #app.visible { opacity: 1; }
   .top-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
   .top-row button { background: none; border: 1px solid #4a4a52; color: #9a978d; border-radius: 4px; padding: 5px 10px; font-size: 11px; cursor: pointer; font-family: 'IBM Plex Mono', monospace; }
   .hint { color: #7c7a70; font-size: 11.5px; margin: 0 0 18px; }
