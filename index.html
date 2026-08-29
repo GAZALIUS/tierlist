@@ -99,10 +99,11 @@
   .pool-cards { display: flex; flex-wrap: wrap; gap: 10px; }
 
   .card { width: 88px; flex-shrink: 0; }
-  .card .cover {
+    .card .cover {
     width: 88px; height: 123px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.12);
     display: flex; flex-direction: column; justify-content: space-between; padding: 6px;
     cursor: grab; position: relative;
+    touch-action: none;
   }
   .card .cover .tag { font-size: 7px; letter-spacing: 0.06em; color: rgba(255,255,255,0.75); }
   .card .cover .name { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 10.5px; line-height: 1.1; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
