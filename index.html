@@ -135,8 +135,10 @@
   #closeModalBtn { margin-top: 14px; background: none; border: 1px solid #4a4a52; color: #9a978d; border-radius: 4px; padding: 6px 14px; font-size: 12px; cursor: pointer; font-family: 'IBM Plex Mono', monospace; }
   .empty-note { color: #5a5850; font-size: 12px; }
 
-  #wrappedCard {
-    position: fixed; left: -9999px; top: 0;
+   #wrappedCard {
+    position: fixed; left: 0; top: 0;
+    z-index: -9999;
+    pointer-events: none;
     width: 720px; height: 1280px;
     background: linear-gradient(165deg, #1a1109 0%, #0d1620 50%, #131a12 100%);
     color: #fff; font-family: 'IBM Plex Mono', monospace;
