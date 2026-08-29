@@ -112,10 +112,10 @@
     border-radius: 50%; width: 16px; height: 16px; font-size: 10px; line-height: 16px; cursor: pointer; padding: 0;
   }
   .card.dragging { opacity: 0.35; }
-      .card.reveal { animation: popIn 0.5s cubic-bezier(0.22, 0.9, 0.35, 1) backwards; }
+    .card.reveal { animation: popIn 0.55s cubic-bezier(0.16, 0.84, 0.32, 1) backwards; }
   @keyframes popIn {
-    0% { transform: translateY(20px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
+    0% { transform: scale(0.85); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
   }
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 50;
