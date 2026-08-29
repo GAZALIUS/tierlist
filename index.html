@@ -13,8 +13,11 @@
   * { box-sizing: border-box; }
   body {
     margin: 0; min-height: 100vh;
-    background: linear-gradient(160deg, #1a1109 0%, #0d1620 55%, #15151a 100%);
-    background-attachment: fixed;
+    background-color: #0d0e12;
+    background-image: linear-gradient(160deg, rgba(26,17,9,0.88) 0%, rgba(13,22,32,0.88) 55%, rgba(21,21,26,0.9) 100%), var(--season-bg, none);
+    background-size: cover, cover;
+    background-position: center, center;
+    background-attachment: fixed, fixed;
     color: #e7e4dc; font-family: 'IBM Plex Mono', monospace;
   }
   h1, h2 { font-family: 'Oswald', sans-serif; font-weight: 600; margin: 0; }
@@ -23,7 +26,8 @@
     position: fixed; inset: 0; z-index: 10;
     display: flex; flex-direction: column; align-items: center;
     justify-content: center; text-align: center; padding: 24px;
-    background: linear-gradient(160deg, #0d1620 0%, #1a1109 50%, #131a12 100%);
+    background-image: linear-gradient(160deg, rgba(13,22,32,0.9) 0%, rgba(26,17,9,0.9) 50%, rgba(19,26,18,0.9) 100%), var(--season-bg, none);
+    background-size: cover; background-position: center;
     transition: transform 0.6s ease, opacity 0.6s ease;
   }
   #welcome.slide-up { transform: translateY(-100%); opacity: 0; }
@@ -52,7 +56,23 @@
   .icon-btn { font-size: 15px; padding: 4px 9px; line-height: 1; }
   #doneBtn { border-color: #4a8f5c; color: #6ac97a; }
   #copyLinkBtn { border-color: #3ca8d9; color: #6cc4e8; display: none; }
+  #wrappedBtn { border-color: #c9a83c; color: #e0c96c; display: none; }
   .hint { color: #7c7a70; font-size: 11.5px; margin: 0 0 18px; }
+
+  .compare-box { background: #15161c; border: 1px solid #34363f; border-radius: 10px; padding: 12px; margin-bottom: 14px; }
+  .compare-row { display: flex; gap: 8px; }
+  .compare-row input {
+    flex: 1; background: #101116; border: 1px solid #34363f; border-radius: 4px;
+    padding: 8px 10px; color: #e7e4dc; font-size: 12.5px; font-family: 'IBM Plex Mono', monospace; outline: none;
+  }
+  .compare-row button {
+    background: #3ca8d9; border: none; border-radius: 4px; padding: 8px 16px;
+    color: #0e1a22; font-weight: 600; font-size: 13px; cursor: pointer; font-family: 'IBM Plex Mono', monospace;
+  }
+  .compare-result { margin-top: 12px; font-size: 12.5px; line-height: 1.6; }
+  .compare-pct { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 22px; color: #6cc4e8; }
+  .compare-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .compare-chip { background: #1c2b3a; border: 1px solid #3ca8d933; border-radius: 4px; padding: 3px 8px; font-size: 11px; }
 
   .season { border-radius: 10px; padding: 12px 12px 10px; margin-bottom: 12px; border: 1px solid; }
   .season-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
@@ -92,6 +112,8 @@
     border-radius: 50%; width: 16px; height: 16px; font-size: 10px; line-height: 16px; cursor: pointer; padding: 0;
   }
   .card.dragging { opacity: 0.35; }
+  .card.reveal { animation: popIn 0.4s ease backwards; }
+  @keyframes popIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 50;
@@ -110,10 +132,25 @@
   #closeModalBtn { margin-top: 14px; background: none; border: 1px solid #4a4a52; color: #9a978d; border-radius: 4px; padding: 6px 14px; font-size: 12px; cursor: pointer; font-family: 'IBM Plex Mono', monospace; }
   .empty-note { color: #5a5850; font-size: 12px; }
 
+  #wrappedCard {
+    position: fixed; left: -9999px; top: 0;
+    width: 720px; height: 1280px;
+    background: linear-gradient(165deg, #1a1109 0%, #0d1620 50%, #131a12 100%);
+    color: #fff; font-family: 'IBM Plex Mono', monospace;
+    padding: 60px 50px; display: flex; flex-direction: column; justify-content: space-between;
+  }
+  #wrappedCard .wc-title { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 34px; text-transform: uppercase; letter-spacing: 0.02em; }
+  #wrappedCard .wc-sub { color: #9a978d; font-size: 15px; margin-top: 8px; }
+  #wrappedCard .wc-season { margin-top: 26px; }
+  #wrappedCard .wc-season-label { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 20px; text-transform: uppercase; margin-bottom: 8px; }
+  #wrappedCard .wc-games { font-size: 15px; color: #e7e4dc; line-height: 1.7; }
+  #wrappedCard .wc-footer { font-size: 13px; color: #6a6860; text-align: center; letter-spacing: 0.05em; }
+
   ::-webkit-scrollbar { height: 8px; }
   ::-webkit-scrollbar-thumb { background: #2a2b33; border-radius: 4px; }
 </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.2/confetti.browser.min.js"></script>
 </head>
 <body>
 
@@ -129,13 +166,23 @@
     <div class="top-actions">
       <button class="icon-btn" id="saveBtn" title="Сохранить">💾</button>
       <button id="loadBtn">загрузить</button>
-            <button id="doneBtn">готово</button>
+      <button id="doneBtn">готово</button>
       <button class="icon-btn" id="downloadBtn" title="Скачать как картинку">📸</button>
       <button id="copyLinkBtn">скопировать ссылку</button>
+      <button id="wrappedBtn">карточка для сторис</button>
       <button id="resetBtn">начать заново</button>
     </div>
   </div>
-  <p class="hint">Перетаскивай карточки в подходящую категорию — одну игру можно поместить сразу в несколько мест. Сохраняй сборку кнопкой 💾, чтобы не потерять, или жми «готово», чтобы получить ссылку и поделиться результатом с друзьями.</p>
+  <p class="hint">Перетаскивай карточки в подходящую категорию — одну игру можно поместить сразу в несколько мест. Сохраняй сборку кнопкой 💾, или жми «готово», чтобы получить ссылку и карточку для сторис.</p>
+
+  <div class="compare-box">
+    <div class="pool-label" style="margin-bottom:8px;">Сравнить с другом</div>
+    <div class="compare-row">
+      <input id="compareInput" placeholder="вставь ссылку друга сюда...">
+      <button id="compareBtn">сравнить</button>
+    </div>
+    <div id="compareResult"></div>
+  </div>
 
   <div id="seasonsContainer"></div>
 
@@ -155,6 +202,15 @@
     <div id="saveList"></div>
     <button id="closeModalBtn">закрыть</button>
   </div>
+</div>
+
+<div id="wrappedCard">
+  <div>
+    <div class="wc-title">Мой игровой год</div>
+    <div class="wc-sub">тир-лист по сезонам</div>
+  </div>
+  <div id="wrappedSeasons"></div>
+  <div class="wc-footer">сделай свой ↗</div>
 </div>
 
 <script>
@@ -268,6 +324,11 @@ function emptyZones() {
 }
 function countOf(name) {
   return Object.values(zones).reduce((acc, arr) => acc + (arr.includes(name)?1:0), 0);
+}
+function allPlacedNames() {
+  const set = new Set();
+  Object.values(zones).forEach(arr => arr.forEach(n => set.add(n)));
+  return set;
 }
 
 const RAWG_API_KEY = "2e2df5238d7f4dc3b76c227d3dad3024";
@@ -446,6 +507,17 @@ function renderPool() {
 
 function renderAll() { renderSeasons(); renderPool(); }
 
+// ---------- seasonal auto-background based on current month ----------
+(function applySeasonalBackground() {
+  const month = new Date().getMonth();
+  let seasonId;
+  if ([11, 0, 1].includes(month)) seasonId = "winter";
+  else if ([2, 3, 4].includes(month)) seasonId = "spring";
+  else if ([5, 6, 7].includes(month)) seasonId = "summer";
+  else seasonId = "autumn";
+  document.documentElement.style.setProperty("--season-bg", `url('/bg-${seasonId}.jpg')`);
+})();
+
 // ---------- persistence: localStorage saves ----------
 function getSaves() {
   try { return JSON.parse(localStorage.getItem("tierlist_saves") || "{}"); } catch (e) { return {}; }
@@ -517,6 +589,21 @@ function encodeState() {
 function decodeState(str) {
   try { return JSON.parse(decodeURIComponent(atob(str))); } catch (e) { return null; }
 }
+function extractShareCode(input) {
+  const trimmed = input.trim();
+  try {
+    const url = new URL(trimmed);
+    const code = url.searchParams.get("share");
+    if (code) return code;
+  } catch (e) { /* not a full URL, maybe just the code itself */ }
+  return trimmed;
+}
+
+function fireConfetti() {
+  if (typeof confetti !== "function") return;
+  confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 }, colors: ["#4a7fa8","#6a9955","#d99a3a","#a8562e"] });
+  setTimeout(() => confetti({ particleCount: 50, spread: 100, origin: { y: 0.4 } }), 250);
+}
 
 document.getElementById("doneBtn").addEventListener("click", () => {
   const encoded = encodeState();
@@ -524,6 +611,12 @@ document.getElementById("doneBtn").addEventListener("click", () => {
   const copyBtn = document.getElementById("copyLinkBtn");
   copyBtn.dataset.url = url;
   copyBtn.style.display = "inline-block";
+  document.getElementById("wrappedBtn").style.display = "inline-block";
+  fireConfetti();
+  document.querySelectorAll(".lane-cards .card").forEach((el, i) => {
+    el.classList.add("reveal");
+    el.style.animationDelay = (i % 12) * 40 + "ms";
+  });
 });
 
 document.getElementById("copyLinkBtn").addEventListener("click", function () {
@@ -534,6 +627,60 @@ document.getElementById("copyLinkBtn").addEventListener("click", function () {
     this.textContent = "скопировано ✓";
     setTimeout(() => { this.textContent = original; }, 2000);
   });
+});
+
+// ---------- wrapped-style share card ----------
+function topGamesForSeason(seasonId, count) {
+  const vibe = zones[`${seasonId}:vibe`] || [];
+  const novibe = zones[`${seasonId}:novibe`] || [];
+  return vibe.concat(novibe).slice(0, count);
+}
+
+document.getElementById("wrappedBtn").addEventListener("click", () => {
+  const container = document.getElementById("wrappedSeasons");
+  container.innerHTML = "";
+  SEASONS.forEach(s => {
+    const games = topGamesForSeason(s.id, 3);
+    if (games.length === 0) return;
+    const block = document.createElement("div");
+    block.className = "wc-season";
+    block.innerHTML = `<div class="wc-season-label" style="color:${s.color}">${s.label}</div>
+      <div class="wc-games">${games.map(n => "• " + n).join("<br>")}</div>`;
+    container.appendChild(block);
+  });
+  const card = document.getElementById("wrappedCard");
+  html2canvas(card, { backgroundColor: null, scale: 2 }).then((canvas) => {
+    const link = document.createElement("a");
+    link.download = "мой-игровой-год.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  });
+});
+
+// ---------- friend comparison ----------
+document.getElementById("compareBtn").addEventListener("click", () => {
+  const input = document.getElementById("compareInput").value;
+  const resultEl = document.getElementById("compareResult");
+  if (!input.trim()) { resultEl.innerHTML = `<div class="empty-note">вставь ссылку друга</div>`; return; }
+  const code = extractShareCode(input);
+  const friendData = decodeState(code);
+  if (!friendData) { resultEl.innerHTML = `<div class="empty-note">не получилось разобрать ссылку — проверь, что скопировал её целиком</div>`; return; }
+
+  const mine = allPlacedNames();
+  const friendZones = { ...emptyZones(), ...(friendData.zones || {}) };
+  const theirs = new Set();
+  Object.values(friendZones).forEach(arr => arr.forEach(n => theirs.add(n)));
+
+  const common = [...mine].filter(n => theirs.has(n));
+  const unionSize = new Set([...mine, ...theirs]).size;
+  const pct = unionSize === 0 ? 0 : Math.round((common.length / unionSize) * 100);
+
+  resultEl.innerHTML = `
+    <div class="compare-result">
+      <span class="compare-pct">${pct}%</span> общих игр
+      ${common.length ? `<div class="compare-list">${common.map(n => `<span class="compare-chip">${n}</span>`).join("")}</div>` : ""}
+    </div>
+  `;
 });
 
 // ---------- welcome transition ----------
@@ -558,10 +705,12 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
   });
 });
 
-  document.getElementById("resetBtn").addEventListener("click", () => {
+document.getElementById("resetBtn").addEventListener("click", () => {
   customGames = [];
   zones = emptyZones();
   document.getElementById("searchInput").value = "";
+  document.getElementById("copyLinkBtn").style.display = "none";
+  document.getElementById("wrappedBtn").style.display = "none";
   renderAll();
 });
 
