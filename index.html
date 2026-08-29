@@ -401,8 +401,8 @@ function cardEl(game, opts) {
     wrap.classList.add("dragging");
     e.dataTransfer.effectAllowed = "copy";
   });
-  cover.addEventListener("dragend", () => wrap.classList.remove("dragging"));
-
+   cover.addEventListener("dragend", () => wrap.classList.remove("dragging"));
+  attachTouchDrag(cover, game, wrap);
   if (opts.count > 0) {
     const badge = document.createElement("span");
     badge.textContent = opts.count;
@@ -426,7 +426,85 @@ function cardEl(game, opts) {
   return wrap;
 }
 
-function laneEl(zoneKey, label) {
+function performDrop(zoneKey) {
+  if (!dragItem) return;
+  if (!zones[zoneKey].includes(dragItem)) zones[zoneKey].push(dragItem);
+  dragItem = null;
+  renderAll();
+}
+
+let touchDragEl = null;
+let touchStartPos = null;
+let touchDragging = false;
+let touchDragName = null;
+
+function attachTouchDrag(cover, game, wrap) {
+  cover.addEventListener("touchstart", (e) => {
+    if (e.touches.length !== 1) return;
+    const t = e.touches[0];
+    touchStartPos = { x: t.clientX, y: t.clientY };
+    touchDragging = false;
+    touchDragName = game.name;
+  }, { passive: true });
+
+  cover.addEventListener("touchmove", (e) => {
+    if (!touchStartPos) return;
+    const t = e.touches[0];
+    const dx = t.clientX - touchStartPos.x;
+    const dy = t.clientY - touchStartPos.y;
+    if (!touchDragging && Math.hypot(dx, dy) > 10) {
+      touchDragging = true;
+      dragItem = touchDragName;
+      touchDragEl = cover.cloneNode(true);
+      touchDragEl.style.position = "fixed";
+      touchDragEl.style.width = cover.offsetWidth + "px";
+      touchDragEl.style.height = cover.offsetHeight + "px";
+      touchDragEl.style.pointerEvents = "none";
+      touchDragEl.style.opacity = "0.85";
+      touchDragEl.style.zIndex = "999";
+      touchDragEl.style.transform = "scale(1.06)";
+      touchDragEl.style.boxShadow = "0 10px 24px rgba(0,0,0,0.5)";
+      document.body.appendChild(touchDragEl);
+      wrap.style.opacity = "0.3";
+    }
+    if (touchDragging) {
+      e.preventDefault();
+      touchDragEl.style.left = (t.clientX - cover.offsetWidth / 2) + "px";
+      touchDragEl.style.top = (t.clientY - cover.offsetHeight / 2) + "px";
+      document.querySelectorAll(".lane.dragover").forEach(l => l.classList.remove("dragover"));
+      const el = document.elementFromPoint(t.clientX, t.clientY);
+      const lane = el && el.closest(".lane");
+      if (lane) lane.classList.add("dragover");
+    }
+  }, { passive: false });
+
+  cover.addEventListener("touchend", (e) => {
+    if (touchDragging) {
+      const t = e.changedTouches[0];
+      const el = document.elementFromPoint(t.clientX, t.clientY);
+      const lane = el && el.closest(".lane");
+      document.querySelectorAll(".lane.dragover").forEach(l => l.classList.remove("dragover"));
+      if (touchDragEl) { touchDragEl.remove(); touchDragEl = null; }
+      wrap.style.opacity = "";
+      if (lane && lane.dataset.zoneKey) {
+        performDrop(lane.dataset.zoneKey);
+      } else {
+        dragItem = null;
+      }
+    }
+    touchStartPos = null;
+    touchDragging = false;
+    touchDragName = null;
+  });
+
+  cover.addEventListener("touchcancel", () => {
+    if (touchDragEl) { touchDragEl.remove(); touchDragEl = null; }
+    wrap.style.opacity = "";
+    document.querySelectorAll(".lane.dragover").forEach(l => l.classList.remove("dragover"));
+    touchStartPos = null; touchDragging = false; touchDragName = null; dragItem = null;
+  });
+}
+  function laneEl(zoneKey, label) {
   const lane = document.createElement("div");
   lane.className = "lane";
   const labelEl = document.createElement("div");
@@ -437,14 +515,12 @@ function laneEl(zoneKey, label) {
   lane.appendChild(labelEl);
   lane.appendChild(cardsEl);
 
+    lane.dataset.zoneKey = zoneKey;
   lane.addEventListener("dragover", (e) => { e.preventDefault(); lane.classList.add("dragover"); });
   lane.addEventListener("dragleave", () => lane.classList.remove("dragover"));
   lane.addEventListener("drop", () => {
     lane.classList.remove("dragover");
-    if (!dragItem) return;
-    if (!zones[zoneKey].includes(dragItem)) zones[zoneKey].push(dragItem);
-    dragItem = null;
-    renderAll();
+    performDrop(zoneKey);
   });
 
   renderLaneCards(cardsEl, zoneKey);
