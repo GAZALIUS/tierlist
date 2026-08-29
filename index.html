@@ -440,12 +440,14 @@ let touchDragging = false;
 let touchDragName = null;
 let autoScrollDir = 0;
 let autoScrollRAF = null;
+let dragScrollAnchor = 0;
 const EDGE_ZONE = 80;
 const SCROLL_SPEED = 14;
 
 function autoScrollLoop() {
   if (autoScrollDir !== 0) {
     window.scrollBy(0, autoScrollDir * SCROLL_SPEED);
+    dragScrollAnchor = window.scrollY;
     autoScrollRAF = requestAnimationFrame(autoScrollLoop);
   } else {
     autoScrollRAF = null;
@@ -481,6 +483,7 @@ function attachTouchDrag(cover, game, wrap) {
     if (!touchDragging && Math.hypot(dx, dy) > 10) {
       touchDragging = true;
       dragItem = touchDragName;
+      dragScrollAnchor = window.scrollY;
       touchDragEl = cover.cloneNode(true);
       touchDragEl.style.position = "fixed";
       touchDragEl.style.width = cover.offsetWidth + "px";
@@ -500,8 +503,11 @@ function attachTouchDrag(cover, game, wrap) {
       document.querySelectorAll(".lane.dragover").forEach(l => l.classList.remove("dragover"));
       const el = document.elementFromPoint(t.clientX, t.clientY);
       const lane = el && el.closest(".lane");
-            if (lane) lane.classList.add("dragover");
+    if (lane) lane.classList.add("dragover");
       updateAutoScroll(t.clientY);
+      if (autoScrollDir === 0 && window.scrollY !== dragScrollAnchor) {
+        window.scrollTo(0, dragScrollAnchor);
+      }
     }
   }, { passive: false });
 
