@@ -113,12 +113,11 @@
   }
   .card.dragging { opacity: 0.35; }
     .card.reveal { animation: popIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
-  @keyframes popIn {
-    0% { transform: translateY(28px); opacity: 0; }
-    60% { transform: translateY(-8px); opacity: 1; }
+   @keyframes popIn {
+    0% { transform: translateY(18px); opacity: 0; }
+    60% { transform: translateY(-4px); opacity: 1; }
     100% { transform: translateY(0); opacity: 1; }
   }
-
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 50;
     display: none; align-items: center; justify-content: center; padding: 20px;
