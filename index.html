@@ -404,17 +404,17 @@ function cardEl(game, opts) {
   if (opts.count > 0) {
     const badge = document.createElement("span");
     badge.textContent = opts.count;
-    badge.style.cssText = "position:absolute;top:3px;right:3px;background:#c0392b;color:#fff;font-size:9px;border-radius:8px;padding:1px 5px;";
+    badge.style.cssText = "position:absolute;top:3px;right:3px;background:#c0392b;color:#fff;font-size:9px;border-radius:8px;padding:1px 5px;z-index:2;";
     cover.appendChild(badge);
   }
-  if (opts.showRemove) {
+    if (opts.showRemove) {
     const btn = document.createElement("button");
     btn.className = "remove-btn";
     btn.textContent = "×";
+    btn.style.zIndex = "2";
     btn.addEventListener("click", (e) => { e.stopPropagation(); opts.onRemove(); });
     cover.appendChild(btn);
   }
-
   const title = document.createElement("div");
   title.className = "title";
   title.textContent = game.name;
