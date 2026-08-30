@@ -820,9 +820,9 @@ async function drawMiniCard(ctx, game, x, y, w, h) {
     ctx.fillStyle = grad;
     ctx.fillRect(x, y, w, h);
     ctx.fillStyle = "rgba(255,255,255,0.9)";
-    ctx.font = "600 12px Oswald, sans-serif";
+    ctx.font = "600 11px Oswald, sans-serif";
     ctx.textAlign = "left";
-    wrapText(ctx, game.name, x + 8, y + h - 34, w - 16, 14);
+    wrapText(ctx, game.name, x + 7, y + h - 30, w - 14, 13);
   }
   ctx.restore();
   ctx.strokeStyle = "rgba(255,255,255,0.15)";
@@ -831,13 +831,48 @@ async function drawMiniCard(ctx, game, x, y, w, h) {
   ctx.stroke();
 }
 
+function groupGamesFor(seasonId) {
+  const vibe = (zones[`${seasonId}:vibe`] || []).map(findGame).filter(Boolean);
+  const novibe = (zones[`${seasonId}:novibe`] || []).map(findGame).filter(Boolean);
+  return { vibe, novibe };
+}
+
+function layoutRows(count, perRow) {
+  return Math.max(1, Math.ceil(count / perRow));
+}
+
 document.getElementById("wrappedBtn").addEventListener("click", async () => {
   const btn = document.getElementById("wrappedBtn");
   const originalText = btn.textContent;
   btn.textContent = "готовим...";
   btn.disabled = true;
 
-  const W = 720, H = 1280, scale = 2;
+  const W = 720, scale = 2;
+  const marginX = 50;
+  const cardW = 90, cardH = 126, gap = 10;
+  const perRow = Math.floor((W - marginX * 2 + gap) / (cardW + gap));
+
+  const seasonData = SEASONS.map(s => {
+    const { vibe, novibe } = groupGamesFor(s.id);
+    return { s, vibe, novibe };
+  }).filter(d => d.vibe.length > 0 || d.novibe.length > 0);
+
+  // measure total height needed
+  let y = 170;
+  seasonData.forEach(({ s, vibe, novibe }) => {
+    y += 30; // season title
+    if (vibe.length) {
+      y += 20; // "по вайбу" label
+      y += layoutRows(vibe.length, perRow) * (cardH + gap);
+    }
+    if (novibe.length) {
+      y += 20; // "не вайб" label
+      y += layoutRows(novibe.length, perRow) * (cardH + gap);
+    }
+    y += 20; // gap between seasons
+  });
+  const H = Math.max(900, y + 80);
+
   const canvas = document.createElement("canvas");
   canvas.width = W * scale;
   canvas.height = H * scale;
@@ -854,36 +889,54 @@ document.getElementById("wrappedBtn").addEventListener("click", async () => {
   ctx.fillStyle = "#ffffff";
   ctx.font = "600 34px Oswald, sans-serif";
   ctx.textBaseline = "top";
-  ctx.fillText("МОЙ ИГРОВОЙ ГОД", 50, 60);
+  ctx.fillText("МОЙ ИГРОВОЙ ГОД", marginX, 60);
 
   ctx.fillStyle = "#9a978d";
   ctx.font = "400 15px 'IBM Plex Mono', monospace";
-  ctx.fillText("тир-лист по сезонам", 50, 108);
+  ctx.fillText("тир-лист по сезонам", marginX, 108);
 
-  let y = 170;
-  const cardW = 100, cardH = 140, gap = 14;
+  let cy = 170;
 
-  for (const s of SEASONS) {
-    const games = topGamesForSeason(s.id, 3).map(findGame).filter(Boolean);
-    if (games.length === 0) continue;
+  async function drawRow(games) {
+    const rows = layoutRows(games.length, perRow);
+    for (let r = 0; r < rows; r++) {
+      let x = marginX;
+      const rowGames = games.slice(r * perRow, (r + 1) * perRow);
+      for (const g of rowGames) {
+        await drawMiniCard(ctx, g, x, cy, cardW, cardH);
+        x += cardW + gap;
+      }
+      cy += cardH + gap;
+    }
+  }
 
+  for (const { s, vibe, novibe } of seasonData) {
     ctx.fillStyle = s.color;
     ctx.font = "600 20px Oswald, sans-serif";
-    ctx.fillText(s.label, 50, y);
-    y += 32;
+    ctx.fillText(s.label, marginX, cy);
+    cy += 30;
 
-    let x = 50;
-    for (const g of games) {
-      await drawMiniCard(ctx, g, x, y, cardW, cardH);
-      x += cardW + gap;
+    if (vibe.length) {
+      ctx.fillStyle = "#8a8780";
+      ctx.font = "600 11px 'IBM Plex Mono', monospace";
+      ctx.fillText("ПО ВАЙБУ", marginX, cy);
+      cy += 20;
+      await drawRow(vibe);
     }
-    y += cardH + 30;
+    if (novibe.length) {
+      ctx.fillStyle = "#8a8780";
+      ctx.font = "600 11px 'IBM Plex Mono', monospace";
+      ctx.fillText("НЕ ВАЙБ", marginX, cy);
+      cy += 20;
+      await drawRow(novibe);
+    }
+    cy += 20;
   }
 
   ctx.fillStyle = "#6a6860";
   ctx.font = "400 13px 'IBM Plex Mono', monospace";
   ctx.textAlign = "center";
-  ctx.fillText("сделай свой ↗", W / 2, H - 60);
+  ctx.fillText("сделай свой ↗", W / 2, H - 50);
   ctx.textAlign = "left";
 
   const link = document.createElement("a");
