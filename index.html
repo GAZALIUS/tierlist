@@ -852,12 +852,13 @@ document.getElementById("wrappedBtn").addEventListener("click", async () => {
   const cardW = 90, cardH = 126, gap = 10;
   const perRow = Math.floor((W - marginX * 2 + gap) / (cardW + gap));
 
+   const evergreenGames = (zones[EVERGREEN.id] || []).map(findGame).filter(Boolean);
+
   const seasonData = SEASONS.map(s => {
     const { vibe, novibe } = groupGamesFor(s.id);
     return { s, vibe, novibe };
   }).filter(d => d.vibe.length > 0 || d.novibe.length > 0);
-
-  // measure total height needed
+   // measure total height needed
   let y = 170;
   seasonData.forEach(({ s, vibe, novibe }) => {
     y += 30; // season title
@@ -871,6 +872,11 @@ document.getElementById("wrappedBtn").addEventListener("click", async () => {
     }
     y += 20; // gap between seasons
   });
+  if (evergreenGames.length) {
+    y += 30; // evergreen title
+    y += layoutRows(evergreenGames.length, perRow) * (cardH + gap);
+    y += 20;
+  }
   const H = Math.max(900, y + 80);
 
   const canvas = document.createElement("canvas");
@@ -910,7 +916,7 @@ document.getElementById("wrappedBtn").addEventListener("click", async () => {
     }
   }
 
-  for (const { s, vibe, novibe } of seasonData) {
+    for (const { s, vibe, novibe } of seasonData) {
     ctx.fillStyle = s.color;
     ctx.font = "600 20px Oswald, sans-serif";
     ctx.fillText(s.label, marginX, cy);
@@ -930,6 +936,15 @@ document.getElementById("wrappedBtn").addEventListener("click", async () => {
       cy += 20;
       await drawRow(novibe);
     }
+    cy += 20;
+  }
+
+  if (evergreenGames.length) {
+    ctx.fillStyle = EVERGREEN.color;
+    ctx.font = "600 20px Oswald, sans-serif";
+    ctx.fillText(EVERGREEN.label, marginX, cy);
+    cy += 30;
+    await drawRow(evergreenGames);
     cy += 20;
   }
 
