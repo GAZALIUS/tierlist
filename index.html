@@ -172,7 +172,6 @@
       <button class="icon-btn" id="saveBtn" title="Сохранить">💾</button>
       <button id="loadBtn">загрузить</button>
       <button id="doneBtn">готово</button>
-      <button class="icon-btn" id="downloadBtn" title="Скачать как картинку">📸</button>
       <button id="copyLinkBtn">скопировать ссылку</button>
       <button id="wrappedBtn">карточка для сторис</button>
       <button id="resetBtn">начать заново</button>
@@ -932,16 +931,6 @@ document.getElementById("continueBtn").addEventListener("click", () => {
     welcome.classList.add("slide-up");
   });
   setTimeout(() => { welcome.style.display = "none"; }, 650);
-});
-
-document.getElementById("downloadBtn").addEventListener("click", () => {
-  const target = document.getElementById("seasonsContainer");
-      html2canvas(target, { backgroundColor: "#0a0a0d", scale: 2, ignoreElements: (el) => el.classList && el.classList.contains("cover-photo") }).then((canvas) => {
-    const link = document.createElement("a");
-    link.download = "мой-тир-лист.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  });
 });
 
 document.getElementById("resetBtn").addEventListener("click", () => {
