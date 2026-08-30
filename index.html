@@ -754,29 +754,74 @@ function topGamesForSeason(seasonId, count) {
   return vibe.concat(novibe).slice(0, count);
 }
 
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(" ");
+  let line = "";
+  let curY = y;
+  for (let i = 0; i < words.length; i++) {
+    const test = line + words[i] + " ";
+    if (ctx.measureText(test).width > maxWidth && line) {
+      ctx.fillText(line, x, curY);
+      line = words[i] + " ";
+      curY += lineHeight;
+    } else {
+      line = test;
+    }
+  }
+  ctx.fillText(line, x, curY);
+  return curY + lineHeight;
+}
+
 document.getElementById("wrappedBtn").addEventListener("click", () => {
-  const container = document.getElementById("wrappedSeasons");
-  container.innerHTML = "";
+  const W = 720, H = 1280, scale = 2;
+  const canvas = document.createElement("canvas");
+  canvas.width = W * scale;
+  canvas.height = H * scale;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, "#1a1109");
+  grad.addColorStop(0.5, "#0d1620");
+  grad.addColorStop(1, "#131a12");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "600 34px Oswald, sans-serif";
+  ctx.textBaseline = "top";
+  ctx.fillText("МОЙ ИГРОВОЙ ГОД", 50, 60);
+
+  ctx.fillStyle = "#9a978d";
+  ctx.font = "400 15px 'IBM Plex Mono', monospace";
+  ctx.fillText("тир-лист по сезонам", 50, 108);
+
+  let y = 170;
   SEASONS.forEach(s => {
     const games = topGamesForSeason(s.id, 3);
     if (games.length === 0) return;
-    const block = document.createElement("div");
-    block.className = "wc-season";
-    block.innerHTML = `<div class="wc-season-label" style="color:${s.color}">${s.label}</div>
-      <div class="wc-games">${games.map(n => "• " + n).join("<br>")}</div>`;
-    container.appendChild(block);
+    ctx.fillStyle = s.color;
+    ctx.font = "600 20px Oswald, sans-serif";
+    ctx.fillText(s.label, 50, y);
+    y += 34;
+    ctx.fillStyle = "#e7e4dc";
+    ctx.font = "400 15px 'IBM Plex Mono', monospace";
+    games.forEach(name => {
+      y = wrapText(ctx, "• " + name, 50, y, W - 100, 24);
+    });
+    y += 24;
   });
-  const card = document.getElementById("wrappedCard");
-  card.style.visibility = "visible";
-      html2canvas(card, { backgroundColor: null, scale: 2, ignoreElements: (el) => el.classList && el.classList.contains("cover-photo") }).then((canvas) => {
-    card.style.visibility = "hidden";
-    const link = document.createElement("a");
-    link.download = "мой-игровой-год.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  }).catch(() => {
-    card.style.visibility = "hidden";
-  });
+
+  ctx.fillStyle = "#6a6860";
+  ctx.font = "400 13px 'IBM Plex Mono', monospace";
+  ctx.textAlign = "center";
+  ctx.fillText("сделай свой ↗", W / 2, H - 60);
+  ctx.textAlign = "left";
+
+  const link = document.createElement("a");
+  link.download = "мой-игровой-год.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
 });
 
 // ---------- friend comparison ----------
