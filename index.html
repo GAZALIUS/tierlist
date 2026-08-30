@@ -772,7 +772,72 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
   return curY + lineHeight;
 }
 
-document.getElementById("wrappedBtn").addEventListener("click", () => {
+function loadImageCORS(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    setTimeout(() => resolve(null), 4000);
+    img.src = url;
+  });
+}
+
+function proxied(url) {
+  return `https://images.weserv.nl/?url=${encodeURIComponent(url.replace(/^https?:\/\//, ""))}`;
+}
+
+function getCoverUrlFor(game) {
+  if (game.appid) return `https://cdn.akamai.steamstatic.com/steam/apps/${game.appid}/library_600x900.jpg`;
+  if (RAWG_CACHE[game.name]) return RAWG_CACHE[game.name];
+  return null;
+}
+
+function drawRoundedRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+async function drawMiniCard(ctx, game, x, y, w, h) {
+  const url = getCoverUrlFor(game);
+  const img = url ? await loadImageCORS(proxied(url)) : null;
+
+  drawRoundedRect(ctx, x, y, w, h, 8);
+  ctx.save();
+  ctx.clip();
+  if (img) {
+    const scale = Math.max(w / img.width, h / img.height);
+    const iw = img.width * scale, ih = img.height * scale;
+    ctx.drawImage(img, x + (w - iw) / 2, y + (h - ih) / 2, iw, ih);
+  } else {
+    const grad = ctx.createLinearGradient(x, y, x + w, y + h);
+    grad.addColorStop(0, game.grad[0]);
+    grad.addColorStop(1, game.grad[1]);
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    ctx.font = "600 12px Oswald, sans-serif";
+    ctx.textAlign = "left";
+    wrapText(ctx, game.name, x + 8, y + h - 34, w - 16, 14);
+  }
+  ctx.restore();
+  ctx.strokeStyle = "rgba(255,255,255,0.15)";
+  ctx.lineWidth = 1;
+  drawRoundedRect(ctx, x, y, w, h, 8);
+  ctx.stroke();
+}
+
+document.getElementById("wrappedBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("wrappedBtn");
+  const originalText = btn.textContent;
+  btn.textContent = "готовим...";
+  btn.disabled = true;
+
   const W = 720, H = 1280, scale = 2;
   const canvas = document.createElement("canvas");
   canvas.width = W * scale;
@@ -797,20 +862,24 @@ document.getElementById("wrappedBtn").addEventListener("click", () => {
   ctx.fillText("тир-лист по сезонам", 50, 108);
 
   let y = 170;
-  SEASONS.forEach(s => {
-    const games = topGamesForSeason(s.id, 3);
-    if (games.length === 0) return;
+  const cardW = 100, cardH = 140, gap = 14;
+
+  for (const s of SEASONS) {
+    const games = topGamesForSeason(s.id, 3).map(findGame).filter(Boolean);
+    if (games.length === 0) continue;
+
     ctx.fillStyle = s.color;
     ctx.font = "600 20px Oswald, sans-serif";
     ctx.fillText(s.label, 50, y);
-    y += 34;
-    ctx.fillStyle = "#e7e4dc";
-    ctx.font = "400 15px 'IBM Plex Mono', monospace";
-    games.forEach(name => {
-      y = wrapText(ctx, "• " + name, 50, y, W - 100, 24);
-    });
-    y += 24;
-  });
+    y += 32;
+
+    let x = 50;
+    for (const g of games) {
+      await drawMiniCard(ctx, g, x, y, cardW, cardH);
+      x += cardW + gap;
+    }
+    y += cardH + 30;
+  }
 
   ctx.fillStyle = "#6a6860";
   ctx.font = "400 13px 'IBM Plex Mono', monospace";
@@ -822,6 +891,9 @@ document.getElementById("wrappedBtn").addEventListener("click", () => {
   link.download = "мой-игровой-год.png";
   link.href = canvas.toDataURL("image/png");
   link.click();
+
+  btn.textContent = originalText;
+  btn.disabled = false;
 });
 
 // ---------- friend comparison ----------
